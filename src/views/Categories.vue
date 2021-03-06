@@ -4,11 +4,19 @@
             <h3>Категории</h3>
         </div>
         <section>
-            <div class="row">
+            <loader v-if="loading" />
+            <div v-else class="row">
 
-                <CategoryCreate @created="addNewCategory" />
+                <CategoryCreate />
 
-                <CategoryEdit />
+                <CategoryEdit
+                    v-if="categories.length"
+                    :categories="categories"
+                    :key="categories.length + updateCount"
+                    @update-category="updateCount++"
+                />
+
+                <p v-else class="center">Категорий нет</p>
 
             </div>
         </section>
@@ -23,12 +31,19 @@ export default {
     name: 'Categories',
     components: { CategoryCreate, CategoryEdit },
     data: () => ({
-        categories: []
+        loading: true,
+        updateCount: 0
     }),
-    methods: {
-        addNewCategory (category) {
-            this.categories.push(category)
+    async mounted () {
+        await this.$store.dispatch('fetchCategories')
+        this.loading = false
+    },
+    computed: {
+        categories () {
+            return this.$store.getters.getCategories
         }
+    },
+    methods: {
     }
 
 }
